@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.utils.jwt_helper import verify_token
 from app.utils.db import get_db
+from app.utils.json_encoder import clean_document
 from datetime import datetime
 from bson import ObjectId
 
@@ -30,17 +31,10 @@ def get_matches():
         
         matches = list(db.matches.find(query))
         
-        for match in matches:
-            match['id'] = str(match['_id'])
-            del match['_id']
-            if 'match_date' in match and match['match_date']:
-                if hasattr(match['match_date'], 'isoformat'):
-                    match['match_date'] = match['match_date'].isoformat()
-            if 'created_at' in match and match['created_at']:
-                if hasattr(match['created_at'], 'isoformat'):
-                    match['created_at'] = match['created_at'].isoformat()
+        # Clean all matches - convert ObjectIds and datetimes
+        cleaned_matches = [clean_document(match) for match in matches]
         
-        return jsonify({'matches': matches}), 200
+        return jsonify({'matches': cleaned_matches}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -55,16 +49,10 @@ def get_match(match_id):
         if not match:
             return jsonify({'error': 'Match not found'}), 404
         
-        match['id'] = str(match['_id'])
-        del match['_id']
-        if 'match_date' in match and match['match_date']:
-            if hasattr(match['match_date'], 'isoformat'):
-                match['match_date'] = match['match_date'].isoformat()
-        if 'created_at' in match and match['created_at']:
-            if hasattr(match['created_at'], 'isoformat'):
-                match['created_at'] = match['created_at'].isoformat()
+        # Clean match - convert ObjectIds and datetimes
+        cleaned_match = clean_document(match)
         
-        return jsonify({'match': match}), 200
+        return jsonify({'match': cleaned_match}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -87,14 +75,10 @@ def get_my_matches():
         
         user_matches = list(db.user_matches.find(query))
         
-        for match in user_matches:
-            match['id'] = str(match['_id'])
-            del match['_id']
-            if 'created_at' in match and match['created_at']:
-                if hasattr(match['created_at'], 'isoformat'):
-                    match['created_at'] = match['created_at'].isoformat()
+        # Clean all user matches - convert ObjectIds and datetimes
+        cleaned_matches = [clean_document(match) for match in user_matches]
         
-        return jsonify({'matches': user_matches}), 200
+        return jsonify({'matches': cleaned_matches}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

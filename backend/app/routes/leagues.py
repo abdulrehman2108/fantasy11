@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.utils.jwt_helper import verify_token
 from app.utils.db import get_db
+from app.utils.json_encoder import clean_document
 from bson import ObjectId
 
 leagues_bp = Blueprint('leagues', __name__)
@@ -42,14 +43,10 @@ def get_leagues():
         elif sort_by == 'entry':
             leagues.sort(key=lambda x: x.get('entry_fee', 0))
         
-        for league in leagues:
-            league['id'] = str(league['_id'])
-            del league['_id']
-            if 'created_at' in league and league['created_at']:
-                if hasattr(league['created_at'], 'isoformat'):
-                    league['created_at'] = league['created_at'].isoformat()
+        # Clean all leagues - convert ObjectIds and datetimes
+        cleaned_leagues = [clean_document(league) for league in leagues]
         
-        return jsonify({'leagues': leagues}), 200
+        return jsonify({'leagues': cleaned_leagues}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

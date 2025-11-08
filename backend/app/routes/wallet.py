@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.utils.jwt_helper import verify_token
 from app.utils.db import get_db
+from app.utils.json_encoder import clean_document
 from bson import ObjectId
 
 wallet_bp = Blueprint('wallet', __name__)
@@ -47,14 +48,10 @@ def get_transactions():
         db = get_db()
         transactions = list(db.transactions.find({'user_id': user_id}))
         
-        for transaction in transactions:
-            transaction['id'] = str(transaction['_id'])
-            del transaction['_id']
-            if 'created_at' in transaction and transaction['created_at']:
-                if hasattr(transaction['created_at'], 'isoformat'):
-                    transaction['created_at'] = transaction['created_at'].isoformat()
+        # Clean all transactions - convert ObjectIds and datetimes
+        cleaned_transactions = [clean_document(transaction) for transaction in transactions]
         
-        return jsonify({'transactions': transactions}), 200
+        return jsonify({'transactions': cleaned_transactions}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

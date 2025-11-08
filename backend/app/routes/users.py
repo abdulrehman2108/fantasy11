@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.utils.jwt_helper import verify_token
 from app.utils.db import get_db
+from app.utils.json_encoder import clean_document
 from bson import ObjectId
 
 users_bp = Blueprint('users', __name__)
@@ -29,15 +30,14 @@ def get_profile():
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
-        user['id'] = str(user['_id'])
-        del user['_id']
-        if 'password' in user:
-            del user['password']
-        if 'created_at' in user and user['created_at']:
-            if hasattr(user['created_at'], 'isoformat'):
-                user['created_at'] = user['created_at'].isoformat()
+        # Clean user - convert ObjectIds and datetimes
+        cleaned_user = clean_document(user)
         
-        return jsonify({'user': user}), 200
+        # Remove password if present
+        if 'password' in cleaned_user:
+            del cleaned_user['password']
+        
+        return jsonify({'user': cleaned_user}), 200
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

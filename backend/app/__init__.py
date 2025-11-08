@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from app.utils.db import init_db
 
@@ -24,6 +24,15 @@ def create_app():
     app.register_blueprint(matches_bp, url_prefix='/api/matches')
     app.register_blueprint(leagues_bp, url_prefix='/api/leagues')
     app.register_blueprint(wallet_bp, url_prefix='/api/wallet')
+    
+    # Test routes
+    @app.route('/')
+    def home():
+        return jsonify({"message": "Fantasy 11 Backend is running!"})
+    
+    @app.route('/api/test')
+    def test():
+        return jsonify({"status": "success", "data": "This is a test endpoint."})
     
     return app
 

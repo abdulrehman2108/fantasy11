@@ -3,6 +3,7 @@ from app.models.user import User
 from app.utils.jwt_helper import generate_token, verify_token
 from app.utils.validations import validate_email, validate_mobile
 from app.utils.db import get_db
+from app.utils.json_encoder import clean_document
 from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
@@ -44,9 +45,14 @@ def register():
         
         result = db.users.insert_one(user_data)
         user_id = str(result.inserted_id)
-        user_data['id'] = user_id
-        del user_data['password']
-        user_data['created_at'] = user_data['created_at'].isoformat()
+        
+        # Get the created user and clean it
+        created_user = db.users.find_one({'_id': result.inserted_id})
+        cleaned_user = clean_document(created_user)
+        
+        # Remove password
+        if 'password' in cleaned_user:
+            del cleaned_user['password']
         
         # Generate token
         token = generate_token(user_id)
@@ -54,7 +60,7 @@ def register():
         return jsonify({
             'message': 'User registered successfully',
             'token': token,
-            'user': user_data
+            'user': cleaned_user
         }), 201
         
     except Exception as e:
@@ -84,19 +90,20 @@ def login():
             return jsonify({'error': 'Invalid credentials'}), 401
         
         user_id = str(user['_id'])
-        user['id'] = user_id
-        del user['_id']
-        if 'password' in user:
-            del user['password']
-        if 'created_at' in user and user['created_at']:
-            user['created_at'] = user['created_at'].isoformat() if hasattr(user['created_at'], 'isoformat') else str(user['created_at'])
+        
+        # Clean user - convert ObjectIds and datetimes
+        cleaned_user = clean_document(user)
+        
+        # Remove password
+        if 'password' in cleaned_user:
+            del cleaned_user['password']
         
         token = generate_token(user_id)
         
         return jsonify({
             'message': 'Login successful',
             'token': token,
-            'user': user
+            'user': cleaned_user
         }), 200
         
     except Exception as e:

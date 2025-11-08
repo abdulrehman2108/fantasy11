@@ -10,14 +10,26 @@ export default function SplashScreen() {
     // Check if user is logged in
     const isLoggedIn = typeof window !== 'undefined' && localStorage.getItem('authToken')
     
-    // Redirect after 2 seconds
+    // Redirect after 4.5 seconds
     const timer = setTimeout(() => {
-      if (isLoggedIn) {
-        router.push('/home')
-      } else {
-        router.push('/login')
+      const targetPath = isLoggedIn ? '/home' : '/login'
+      
+      // Try router.push first, then fallback to window.location
+      try {
+        router.push(targetPath)
+        // Fallback after a short delay if router doesn't work
+        setTimeout(() => {
+          if (typeof window !== 'undefined' && window.location.pathname === '/') {
+            window.location.href = targetPath
+          }
+        }, 500)
+      } catch (error) {
+        console.error('Navigation error:', error)
+        if (typeof window !== 'undefined') {
+          window.location.href = targetPath
+        }
       }
-    }, 2000)
+    }, 4500)
 
     return () => clearTimeout(timer)
   }, [router])

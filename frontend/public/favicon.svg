@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Football/Soccer Ball Icon -->
+  <defs>
+    <linearGradient id="ballGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main circle (ball) -->
+  <circle cx="50" cy="50" r="45" fill="url(#ballGradient)" stroke="#1a1a1a" stroke-width="2"/>
+  
+  <!-- Hexagonal pattern (football panels) -->
+  <path d="M 50 10 L 30 25 L 25 50 L 30 75 L 50 90 L 70 75 L 75 50 L 70 25 Z" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  
+  <!-- Vertical line -->
+  <line x1="50" y1="10" x2="50" y2="90" stroke="#1a1a1a" stroke-width="2.5"/>
+  
+  <!-- Diagonal lines -->
+  <line x1="30" y1="25" x2="70" y2="75" stroke="#1a1a1a" stroke-width="2.5"/>
+  <line x1="70" y1="25" x2="30" y2="75" stroke="#1a1a1a" stroke-width="2.5"/>
+  
+  <!-- Center circle -->
+  <circle cx="50" cy="50" r="6" fill="#1a1a1a"/>
+  
+  <!-- Curved lines for 3D effect -->
+  <path d="M 25 50 Q 50 35 50 50" stroke="#1a1a1a" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M 75 50 Q 50 65 50 50" stroke="#1a1a1a" stroke-width="1.5" fill="none" opacity="0.6"/>
+</svg>
